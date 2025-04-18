@@ -7,5 +7,6 @@ namespace ApiBougies.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
+
     }
 }
