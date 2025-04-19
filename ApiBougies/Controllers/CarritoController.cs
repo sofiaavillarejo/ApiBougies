@@ -25,7 +25,7 @@ namespace ApiBougies.Controllers
             if (HttpContext.Session.GetInt32("GastosEnvio") == null)
             {
                 int gastosEnvio = 6;
-                HttpContext.Session.SetInt32("GastosEnvio", gastosEnvio);
+                HttpContext.Session.SetInt32(SessionGastosEnvio, gastosEnvio);
             }
 
             var carrito = HttpContext.Session.GetObject<List<Carrito>>(SessionKeyCarrito) ?? new List<Carrito>();
@@ -75,6 +75,40 @@ namespace ApiBougies.Controllers
 
             return Ok(carrito);
         }
+
+        [HttpPost("UpdateCantidad/{idproducto}/{accion}")]
+        public ActionResult UpdateCantidad(int idproducto, string accion)
+        {
+            const string SessionKeyCarrito = "Carrito";
+            List<Carrito> carrito = HttpContext.Session.GetObject<List<Carrito>>(SessionKeyCarrito)
+                                    ?? new List<Carrito>();
+
+            var item = carrito.FirstOrDefault(p => p.IdProducto == idproducto);
+            if (item != null)
+            {
+                if (accion == "sumar")
+                {
+                    item.Cantidad++;
+                }
+                else if (accion == "restar")
+                {
+                    item.Cantidad--;
+
+                    if (item.Cantidad <= 0)
+                    {
+                        carrito.Remove(item);
+                    }
+                }
+
+                HttpContext.Session.SetObject(SessionKeyCarrito, carrito);
+                return Ok(carrito);
+            }else
+            {
+                return NotFound("No se ha podido actualizar la cantidad o no existe el producto con ese ID.");
+            }
+
+        }
+
 
     }
 }
