@@ -17,15 +17,14 @@ namespace Bougies.Repositories
         #region CARRITO
         Task<List<Descuento>> GetDescuentosAsync();
         //findProducto también
-
-
-        #endregion
-        Task<List<Roles>> GetRolesAsync();
-        Task<int> GetMaxIdPedido();
         Task<int> GetMaxIdDetallesPedido();
         Task<int> TramitarPedido(int idUsuario, int idMetodoPago, string direccion, string ciudad, string codigoPostal, string poblacion, List<Carrito> carrito);
         Task<CuponDescuento> FindCuponDescuentoAsync(string cupon);
         Task CuponUsado(string cupon);
+        #endregion
+
+        Task<List<Roles>> GetRolesAsync();
+        Task<int> GetMaxIdPedido();
         Task<bool> RegistrarUser(string nombre, string apellidos, string email, string? fotoPerfil, string passwd);
         Task<Usuario> LoginUser(string email, string passwd);
         Task<Usuario> PerfilUsuarioAsync(int idUsuario);

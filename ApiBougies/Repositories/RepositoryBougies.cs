@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Bougies.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NugetBougies.Models;
 
@@ -186,6 +187,17 @@ namespace Bougies.Repositories
             else
             {
                 throw new Exception("El cupón no se encontró en la base de datos.");
+            }
+        }
+
+        public async Task DesmarcarCuponUsado(string cupon)
+        {
+            var cuponUsado = await this.context.CuponDescuento.FirstOrDefaultAsync(c => c.Codigo == cupon && c.Usado == true);
+            if (cuponUsado != null)
+            {
+                cuponUsado.Usado = false;
+                this.context.Update(cuponUsado);
+                await this.context.SaveChangesAsync();
             }
         }
 
