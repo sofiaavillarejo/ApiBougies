@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {
@@ -23,6 +24,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseSession();
+
 app.MapGet("/", context =>
 {
     context.Response.Redirect("/scalar");

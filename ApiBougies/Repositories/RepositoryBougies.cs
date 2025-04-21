@@ -329,7 +329,7 @@ namespace Bougies.Repositories
 
         public async Task<bool> ActualizarPerfilAsync(Usuario usuario, string nuevaPasswd, IFormFile nuevaImagen)
         {
-            var user = await this.context.Usuarios.FindAsync(usuario.IdUsuario);
+            Usuario user = await this.PerfilUsuarioAsync(usuario.IdUsuario);
             if (user == null)
                 return false;
 
