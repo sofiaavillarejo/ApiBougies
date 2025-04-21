@@ -1,6 +1,12 @@
-﻿using Bougies.Repositories;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ApiBougies.Helpers;
+using Bougies.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NugetBougies.Models;
 
 namespace ApiBougies.Controllers
@@ -10,15 +16,18 @@ namespace ApiBougies.Controllers
     public class UsuariosController : ControllerBase
     {
         private RepositoryBougies repo;
+        private HelperActionBougies helper;
 
-        public UsuariosController(RepositoryBougies repo)
+        public UsuariosController(RepositoryBougies repo, HelperActionBougies helper)
         {
             this.repo = repo;
+            this.helper = helper;
         }
 
         [HttpPost("Registro")]
         public async Task<IActionResult> Registro([FromForm] Usuario user, [FromForm] IFormFile? imagen)
         {
+            //CAMBIAR PARA CONTROLLAR EL FILE DESDE MVC SOLO, NO EN LA API -> DA ERROR
             string? fileName = null;
 
             // Subida de imagen
@@ -86,40 +95,41 @@ namespace ApiBougies.Controllers
                 return BadRequest(new { error = "El correo y la contraseña son obligatorios" });
             }
 
-            try
+            Usuario user = await this.repo.LoginUser(email, passwd);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(passwd, user.Passwd))
             {
-                Usuario user = await this.repo.LoginUser(email, passwd);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(passwd, user.Passwd))
-                {
-                    return Unauthorized(new { error = "Correo electrónico o contraseña incorrectos." });
-                }
-                return Ok(new
-                {
-                    success = true,
-                    message = "Inicio de sesión exitoso",
-                    user = new
-                    {
-                        user.IdUsuario,
-                        user.Nombre,
-                        user.Apellidos,
-                        user.Email,
-                        user.Imagen,
-                        user.IdRol,
-                        user.CreatedAt
-                    }
-                });
+                return Unauthorized(new { error = "Correo electrónico o contraseña incorrectos." });
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { error = "Error en el servidor", message = ex.Message });
+                SigningCredentials credentials = new SigningCredentials(this.helper.GetKeyToken(), SecurityAlgorithms.HmacSha256);
+
+                string jsonUser = JsonConvert.SerializeObject(user);
+                string jsonCifrado = HelperCryptography.EncryptString(jsonUser);
+
+                Claim[] info = new[]
+                {
+                        new Claim("UserData", jsonCifrado),
+                    };
+                JwtSecurityToken token = new JwtSecurityToken(
+                    claims: info,
+                     issuer: this.helper.Issuer,
+                    audience: this.helper.Audience,
+                    signingCredentials: credentials,
+                    expires: DateTime.UtcNow.AddMinutes(20),
+                    notBefore: DateTime.UtcNow
+                );
+
+                return Ok(new { response = new JwtSecurityTokenHandler().WriteToken(token) });
             }
         }
 
+        [Authorize]
         [HttpGet("PerfilUser/{iduser}")]
         public async Task<ActionResult<Usuario>> PerfilUser(int iduser)
         {
             Usuario user = await this.repo.PerfilUsuarioAsync(iduser);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound("Usuario no encontrado.");
             }
@@ -137,15 +147,17 @@ namespace ApiBougies.Controllers
             if (user == null)
             {
                 return NotFound("Usuario no encontrado");
-            }else
+            }
+            else
             {
                 bool updated = await this.repo.ActualizarPerfilAsync(user, nuevaPasswd, nuevaImagen);
                 if (!updated)
                 {
                     return BadRequest(new { error = "Hubo un error al actualizar el perfil." });
-                }else
+                }
+                else
                 {
-                return Ok(new { success = true, message = "Perfil actualizado correctamente." });
+                    return Ok(new { success = true, message = "Perfil actualizado correctamente." });
 
                 }
             }
