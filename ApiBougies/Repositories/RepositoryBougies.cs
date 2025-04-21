@@ -15,7 +15,7 @@ namespace Bougies.Repositories
             this.context = context;
         }
 
-        #region REPOSITORY TIENDA Y ADMIN
+        #region REPOSITORY TIENDA
         public async Task<List<Producto>> GetProductosAsync()
         {
             var consulta = from datos in this.context.Producto select datos;
@@ -93,6 +93,18 @@ namespace Bougies.Repositories
             return descuento; // Si no encuentra el descuento, devolverá 0 por defecto.
         }
 
+        public async Task<Producto> DetalleProducto(int idproducto)
+        {
+            Producto prod = await this.FindProducto(idproducto);
+            if(prod != null && prod.IdDescuento != null)
+            {
+                int descuento = await this.GetValorDescuentoAsync(prod.IdDescuento);
+                prod.PrecioDescuento = prod.Precio - (prod.Precio * ((decimal)descuento / 100));
+            }else if (prod != null){
+                prod.PrecioDescuento = prod.Precio;
+            }
+            return prod;
+        }
         #endregion
 
         #region REPOSITORY CARRITO
@@ -357,5 +369,7 @@ namespace Bougies.Repositories
             return pedidos;
         }
         #endregion
+        
+
     }
 }
