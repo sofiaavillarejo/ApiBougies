@@ -1,5 +1,7 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
+using Azure.Security.KeyVault.Secrets;
 
 namespace ApiBougies.Helpers
 {
@@ -7,32 +9,46 @@ namespace ApiBougies.Helpers
     public static class HelperCryptography
     {
         private static IConfiguration configuration;
-        private static string keyCifrado;
-        public static void Initialize(IConfiguration config)
+        private static SecretClient secretclient;
+        //private static string keyCifrado;
+
+        public static void Initialize(IConfiguration config, SecretClient client)
         {
             configuration = config;
-            keyCifrado = configuration.GetValue<string>("Crypto");
+            secretclient = client;
+            //KeyVaultSecret secretCrypto = secretclient.GetSecret("Crypto");
+            //keyCifrado = secretCrypto.Value;
+            //keyCifrado = configuration.GetValue<string>("Crypto");
         }
 
         public static string EncryptString(string dato)
         {
+            
             //CIFRA EN FUNCION DE ESTAS CARACTERISTICAS
-            var saltconf = configuration.GetValue<string>("Crypto:Salt");
-            var bucleconf = configuration.GetValue<string>("Crypto:Iterate");
-            string password = configuration.GetValue<string>("Crypto:Key");
+            KeyVaultSecret secretSalt = secretclient.GetSecret("Salt");
+            var saltconf = secretSalt.Value;
+            KeyVaultSecret secretIterate = secretclient.GetSecret("Iterate");
+            var bucleconf = secretSalt.Value;
+            KeyVaultSecret secretKey = secretclient.GetSecret("Key");
+            string passwd = secretKey.Value;
+
             byte[] saltpassword = EncriptarPasswordSalt
-                (password, saltconf, int.Parse(bucleconf));
+                (passwd, saltconf, int.Parse(bucleconf));
             string res = EncryptString(saltpassword, dato);
             return res;
         }
 
         public static string DecryptString(string dato)
         {
-            var saltconf = configuration.GetValue<string>("Crypto:Salt");
-            var bucleconf = configuration.GetValue<string>("Crypto:Iterate");
-            string password = configuration.GetValue<string>("Crypto:Key");
+            KeyVaultSecret secretSalt = secretclient.GetSecret("Salt");
+            var saltconf = secretSalt.Value;
+            KeyVaultSecret secretIterate = secretclient.GetSecret("Iterate");
+            var bucleconf = secretSalt.Value;
+            KeyVaultSecret secretKey = secretclient.GetSecret("Key");
+            string passwd = secretKey.Value;
+
             byte[] saltpassword = EncriptarPasswordSalt
-                (password, saltconf, int.Parse(bucleconf));
+                (passwd, saltconf, int.Parse(bucleconf));
             string res = DecryptString(saltpassword, dato);
             return res;
         }
