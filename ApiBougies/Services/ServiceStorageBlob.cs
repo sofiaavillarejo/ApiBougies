@@ -18,5 +18,17 @@ namespace ApiBougies.Services
 
             return containerClient.Uri.AbsoluteUri;
         }
+
+        public async Task UploadBlobAsync(string containerName, string blobName, Stream stream)
+        {
+            BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
+            await containerClient.CreateIfNotExistsAsync();
+            await containerClient.UploadBlobAsync(blobName, stream);
+        }
+
     }
 }
+
+
+//para mostrar la imagen del blob
+

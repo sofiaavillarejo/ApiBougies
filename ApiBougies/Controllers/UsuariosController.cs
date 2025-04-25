@@ -138,10 +138,11 @@ namespace ApiBougies.Controllers
         }
 
         [Authorize]
-        [HttpGet("PedidosUser/{iduser}")]
-        public async Task<ActionResult<List<Pedido>>> PedidosUser(int iduser)
+        [HttpGet("PedidosUser")]
+        public async Task<ActionResult<List<Pedido>>> PedidosUser()
         {
-            List<Pedido> pedidos = await this.repo.GetPedidoUserAsync(iduser);
+            UserModel user = this.helperuser.GetUser();
+            List<Pedido> pedidos = await this.repo.GetPedidoUserAsync(user.IdUsuario);
             if (pedidos != null)
             {
                 return Ok(pedidos);
@@ -155,3 +156,40 @@ namespace ApiBougies.Controllers
 
     }
 }
+
+
+//[Authorize]
+//[HttpPost("UpdateUser")]
+//public async Task<ActionResult> UpdateUser(
+//[FromForm] string? nombre,
+//[FromForm] string? apellidos,
+//[FromForm] string? email,
+//[FromForm] string? nuevaPasswd,
+//[FromForm] IFormFile? nuevaImagen)
+//{
+//    UserModel model = this.helperuser.GetUser();
+//    if (model == null)
+//    {
+//        return NotFound("Usuario no encontrado");
+//    }
+
+//    // Obtener el usuario original desde la BD
+//    Usuario userOriginal = await this.repo.PerfilUsuarioAsync(model.IdUsuario);
+//    if (userOriginal == null)
+//    {
+//        return NotFound("Usuario no encontrado en base de datos");
+//    }
+
+//    // Solo actualizar si se recibe un valor nuevo
+//    if (!string.IsNullOrEmpty(nombre)) userOriginal.Nombre = nombre;
+//    if (!string.IsNullOrEmpty(apellidos)) userOriginal.Apellidos = apellidos;
+//    if (!string.IsNullOrEmpty(email)) userOriginal.Email = email;
+
+//    bool updated = await this.repo.ActualizarPerfilAsync(userOriginal, nuevaPasswd, nuevaImagen);
+//    if (!updated)
+//    {
+//        return BadRequest(new { error = "Hubo un error al actualizar el perfil." });
+//    }
+
+//    return Ok(new { success = true, message = "Perfil actualizado correctamente." });
+//}

@@ -2,6 +2,7 @@
 using ApiBougies.DTO;
 using ApiBougies.Services;
 using Bougies.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NugetBougies.Models;
@@ -375,47 +376,72 @@ namespace Bougies.Repositories
 
         public async Task<bool> ActualizarPerfilAsync(Usuario usuario, string nuevaPasswd, IFormFile nuevaImagen)
         {
-            Usuario user = await this.PerfilUsuarioAsync(usuario.IdUsuario);
+            // Buscar el usuario real en la base de datos
+            Usuario user = await this.context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == usuario.IdUsuario);
             if (user == null)
                 return false;
 
-            // Actualizar datos
+            // Actualizar datos personales
             user.Nombre = usuario.Nombre;
             user.Apellidos = usuario.Apellidos;
             user.Email = usuario.Email;
 
-            // Si el usuario ingresó una nueva contraseña, se actualiza
+            // Actualizar contraseña si se proporciona
             if (!string.IsNullOrEmpty(nuevaPasswd))
             {
                 user.Passwd = BCrypt.Net.BCrypt.HashPassword(nuevaPasswd);
             }
 
-            // Si hay nueva imagen, se actualiza
+            // Subir nueva imagen al blob y guardar la ruta
             if (nuevaImagen != null)
             {
                 string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(nuevaImagen.FileName);
-                string filePath = Path.Combine("wwwroot/images/users", uniqueFileName);
+                string blobFileName = "users/" + uniqueFileName;
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = nuevaImagen.OpenReadStream())
                 {
-                    await nuevaImagen.CopyToAsync(stream);
+                    await this.service.UploadBlobAsync("bougies", blobFileName, stream);
                 }
 
-                user.Imagen = uniqueFileName;
+                user.Imagen = blobFileName;
             }
 
+            // Guardar los cambios
             this.context.Usuarios.Update(user);
             await this.context.SaveChangesAsync();
+
             return true;
         }
 
         public async Task<List<Pedido>> GetPedidoUserAsync(int idUsuario)
         {
-            List<Pedido> pedidos = await this.context.Pedidos.Where(p => p.IdUsuario == idUsuario).ToListAsync();
-            return pedidos;
+            UserModel user = await this.PerfilUsuarioBlobAsync(idUsuario);
+            if(user == null)
+            {
+                return null;
+            }
+            else
+            {
+                List<Pedido> pedidos = await this.context.Pedidos.Where(p => p.IdUsuario == idUsuario).ToListAsync();
+                return pedidos;
+            }
         }
         #endregion
         
 
     }
 }
+
+// Si hay nueva imagen, se actualiza
+//if (nuevaImagen != null)
+//{
+//    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(nuevaImagen.FileName);
+//    string filePath = Path.Combine("wwwroot/images/users", uniqueFileName);
+
+//    using (var stream = new FileStream(filePath, FileMode.Create))
+//    {
+//        await nuevaImagen.CopyToAsync(stream);
+//    }
+
+//    user.Imagen = uniqueFileName;
+//}
