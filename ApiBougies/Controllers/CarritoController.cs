@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NugetBougies.Models;
 using ApiBougies.Extensions;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiBougies.Controllers
 {
@@ -132,6 +133,7 @@ namespace ApiBougies.Controllers
             return Ok(carrito);
         }
 
+        [Authorize]
         [HttpPost("TramitarPedido")]
         public async Task<IActionResult> TramitarPedido(int idUsuario,int idMetodoPago,string direccion,string ciudad,string codigoPostal,string poblacion)
         {

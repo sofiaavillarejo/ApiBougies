@@ -28,7 +28,7 @@ namespace ApiBougies.Helpers
             KeyVaultSecret secretSalt = secretclient.GetSecret("Salt");
             var saltconf = secretSalt.Value;
             KeyVaultSecret secretIterate = secretclient.GetSecret("Iterate");
-            var bucleconf = secretSalt.Value;
+            var bucleconf = secretIterate.Value;
             KeyVaultSecret secretKey = secretclient.GetSecret("Key");
             string passwd = secretKey.Value;
 
@@ -43,7 +43,7 @@ namespace ApiBougies.Helpers
             KeyVaultSecret secretSalt = secretclient.GetSecret("Salt");
             var saltconf = secretSalt.Value;
             KeyVaultSecret secretIterate = secretclient.GetSecret("Iterate");
-            var bucleconf = secretSalt.Value;
+            var bucleconf = secretIterate.Value;
             KeyVaultSecret secretKey = secretclient.GetSecret("Key");
             string passwd = secretKey.Value;
 

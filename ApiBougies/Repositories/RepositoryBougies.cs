@@ -235,7 +235,7 @@ namespace Bougies.Repositories
                 return await this.context.Usuarios.MaxAsync(x => x.IdUsuario) + 1;
             }
         }
-        public async Task<bool> RegistrarUser(string nombre, string apellidos, string email, string? fotoPerfil, string passwd)
+        public async Task<bool> RegistrarUser(string nombre, string apellidos, string email, string passwd)
         {
             if (await this.context.Usuarios.AnyAsync(u => u.Email == email))
             {
@@ -253,10 +253,9 @@ namespace Bougies.Repositories
                 Nombre = nombre,
                 Apellidos = apellidos,
                 Email = email,
-                Imagen = fotoPerfil ?? "images/users/userprofile.jpg",
+                Imagen = "",
                 Passwd = HashPwd(passwd),
                 IdRol = 2,
-                CreatedAt = DateTime.Now
             };
 
             await this.context.Usuarios.AddAsync(user);
@@ -302,9 +301,10 @@ namespace Bougies.Repositories
         }
 
         //LOGIN------------------
-        public async Task<Usuario> LoginUser(string email, string passwd)
+        public async Task<Usuario> LoginUserAsync(string email, string passwd)
         {
             var user = await this.context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+
             if (user == null)
             {
                 return null;
@@ -319,6 +319,7 @@ namespace Bougies.Repositories
 
             return null;
         }
+
 
         //--------USER PERFIL---------------//
         public async Task<Usuario> PerfilUsuarioAsync(int idUsuario)

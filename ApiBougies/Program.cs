@@ -16,6 +16,7 @@ builder.Services.AddAzureClients(factory =>
 SecretClient secretClient = builder.Services.BuildServiceProvider().GetService<SecretClient>();
 
 HelperCryptography.Initialize(builder.Configuration, secretClient);
+builder.Services.AddTransient<HelperUserToken>();
 builder.Services.AddHttpContextAccessor();
 
 
@@ -29,7 +30,6 @@ string connectionString = secret.Value;
 //string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
 builder.Services.AddDbContext<BougiesContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddTransient<RepositoryBougies>();
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddControllers();

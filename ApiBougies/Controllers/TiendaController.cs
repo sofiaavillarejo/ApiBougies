@@ -24,13 +24,6 @@ namespace ApiBougies.Controllers
             return await this.repo.GetProductosAsync();
         }
 
-        //[HttpGet]
-        //[Route("Producto/{idproducto}")]
-        //public async Task<Producto> FindProducto (int idproducto)
-        //{
-        //    return await this.repo.FindProducto(idproducto);
-        //}
-
         [HttpGet("DetalleProducto/{idproducto}")]
         public async Task<ActionResult<Producto>> DetalleProducto(int idproducto)
         {
