@@ -16,15 +16,10 @@ namespace ApiBougies.Helpers
         {
             configuration = config;
             secretclient = client;
-            //KeyVaultSecret secretCrypto = secretclient.GetSecret("Crypto");
-            //keyCifrado = secretCrypto.Value;
-            //keyCifrado = configuration.GetValue<string>("Crypto");
         }
 
         public static string EncryptString(string dato)
         {
-            
-            //CIFRA EN FUNCION DE ESTAS CARACTERISTICAS
             KeyVaultSecret secretSalt = secretclient.GetSecret("Salt");
             var saltconf = secretSalt.Value;
             KeyVaultSecret secretIterate = secretclient.GetSecret("Iterate");

@@ -88,20 +88,29 @@ namespace ApiBougies.Controllers
         //    }
         //}
 
-        [Authorize]
-        [HttpGet("PerfilUser")]
-        public async Task<ActionResult<Usuario>> PerfilUser()
-        {
-            Usuario user = this.helperuser.GetUser();
-            if (user == null)
-            {
-                return NotFound("Usuario no encontrado.");
-            }
-            else
-            {
-                return Ok(user);
-            }
+        //[Authorize]
+        //[HttpGet("PerfilUser")]
+        //public async Task<ActionResult<Usuario>> PerfilUser()
+        //{
+        //    Usuario user = this.helperuser.GetUser();
+        //    if (user == null)
+        //    {
+        //        return NotFound("Usuario no encontrado.");
+        //    }
+        //    else
+        //    {
+        //        return Ok(user);
+        //    }
+        //}
 
+        [Authorize]
+        [HttpGet("PerfilBlob")]
+        public async Task<ActionResult<UserModel>> PerfilUsuarioBlob()
+        {
+
+            UserModel model = this.helperuser.GetUser();
+            var userblob = await this.repo.PerfilUsuarioBlobAsync(model.IdUsuario);
+            return userblob;
         }
 
         [Authorize]

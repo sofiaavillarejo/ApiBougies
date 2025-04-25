@@ -1,5 +1,7 @@
 using ApiBougies.Helpers;
+using ApiBougies.Services;
 using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Blobs;
 using Bougies.Data;
 using Bougies.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,13 @@ builder.Services.AddAuthentication(helper.GetAuthenticateSchema()).AddJwtBearer(
 
 KeyVaultSecret secret = await secretClient.GetSecretAsync("SqlAzure");
 string connectionString = secret.Value;
+
+KeyVaultSecret secretStorage = await secretClient.GetSecretAsync("StorageAccount");
+string storage = secretStorage.Value;
+BlobServiceClient blobService = new BlobServiceClient(storage);
+builder.Services.AddTransient<BlobServiceClient>(x => blobService);
+builder.Services.AddTransient<ServiceStorageBlob>();
+builder.Services.AddTransient<ServiceStorageBlob>();
 
 //string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
 builder.Services.AddDbContext<BougiesContext>(options => options.UseSqlServer(connectionString));

@@ -7,9 +7,6 @@
         public string Apellidos { get; set; }
         public string Email { get; set; }
         public string Imagen { get; set; }
-        public string Passwd { get; set; }
-        public int IdRol { get; set; } = 2;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     }
 }

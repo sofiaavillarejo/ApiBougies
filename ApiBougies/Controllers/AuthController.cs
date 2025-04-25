@@ -40,9 +40,6 @@ namespace ApiBougies.Controllers
                 userModel.Apellidos = user.Apellidos;
                 userModel.Email = user.Email;
                 userModel.Imagen = user.Imagen;
-                userModel.Passwd = user.Passwd;
-                userModel.IdRol = user.IdRol;
-                userModel.CreatedAt = user.CreatedAt;
 
                 string jsonEmpleado = JsonConvert.SerializeObject(userModel);
                 string jsonCrifado = HelperCryptography.EncryptString(jsonEmpleado);

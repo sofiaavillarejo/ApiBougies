@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using ApiBougies.DTO;
+using ApiBougies.Services;
 using Bougies.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +11,12 @@ namespace Bougies.Repositories
     public class RepositoryBougies : IRepositoryBougies
     {
         private BougiesContext context;
+        private ServiceStorageBlob service;
 
-        public RepositoryBougies(BougiesContext context)
+        public RepositoryBougies(BougiesContext context, ServiceStorageBlob service)
         {
             this.context = context;
+            this.service = service;
         }
 
         #region REPOSITORY TIENDA
@@ -327,6 +331,47 @@ namespace Bougies.Repositories
             var user = await this.context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
             return user;
         }
+
+        public async Task<UserModel> PerfilUsuarioBlobAsync(int idUsuario)
+        {
+            Usuario user = await this.context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            UserModel modelUser = new UserModel
+            {
+                Nombre = user.Nombre,
+                Apellidos = user.Apellidos,
+                Email = user.Email,
+                Imagen = user.Imagen
+            };
+
+            if (!string.IsNullOrEmpty(user.Imagen))
+            {
+                string containerUrl = this.service.GetContainerUrl("bougies");
+
+                if (!user.Imagen.StartsWith("http"))
+                {
+                    string imagePath = user.Imagen;
+                    if (!imagePath.StartsWith("users/"))
+                    {
+                        imagePath = "users/" + imagePath;
+                    }
+
+                    modelUser.Imagen = containerUrl + "/" + imagePath;
+                }
+                else
+                {
+                    modelUser.Imagen = user.Imagen;
+                }
+            }
+
+            return modelUser;
+        }
+
 
         public async Task<bool> ActualizarPerfilAsync(Usuario usuario, string nuevaPasswd, IFormFile nuevaImagen)
         {
