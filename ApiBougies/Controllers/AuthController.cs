@@ -59,5 +59,6 @@ namespace ApiBougies.Controllers
                 return Ok(new { response = new JwtSecurityTokenHandler().WriteToken(token) });
             }
         }
+
     }
 }

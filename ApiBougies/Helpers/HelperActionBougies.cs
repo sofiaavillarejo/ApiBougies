@@ -25,10 +25,6 @@ namespace ApiBougies.Helpers
             this.SecretKey = secretKey.Value;    
         }
 
-        //this.Issuer = configuration.GetValue<string>("ApiBougiesToken:Issuer");
-        //this.Audience = configuration.GetValue<string>("ApiBougiesToken:Audience");
-        //this.SecretKey = configuration.GetValue<string>("ApiBougiesToken:SecretKey");
-
         //generar token -> secretKey
         public SymmetricSecurityKey GetKeyToken()
         {

@@ -113,7 +113,6 @@ namespace Bougies.Repositories
         #endregion
 
         #region REPOSITORY CARRITO
-
         //sacar el id mas alto registrado
         public async Task<int> GetMaxIdPedido()
         {
@@ -207,7 +206,7 @@ namespace Bougies.Repositories
             }
         }
 
-        public async Task DesmarcarCuponUsado(string cupon)
+        public async Task<bool> DesmarcarCuponUsado(string cupon)
         {
             var cuponUsado = await this.context.CuponDescuento.FirstOrDefaultAsync(c => c.Codigo == cupon && c.Usado == true);
             if (cuponUsado != null)
@@ -215,6 +214,11 @@ namespace Bougies.Repositories
                 cuponUsado.Usado = false;
                 this.context.Update(cuponUsado);
                 await this.context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -240,7 +244,7 @@ namespace Bougies.Repositories
                 return await this.context.Usuarios.MaxAsync(x => x.IdUsuario) + 1;
             }
         }
-        public async Task<bool> RegistrarUser(string nombre, string apellidos, string email, string passwd)
+        public async Task<bool> RegistrarUser(string nombre, string apellidos, string email, string passwd, string? imagen)
         {
             if (await this.context.Usuarios.AnyAsync(u => u.Email == email))
             {
@@ -258,7 +262,7 @@ namespace Bougies.Repositories
                 Nombre = nombre,
                 Apellidos = apellidos,
                 Email = email,
-                Imagen = "",
+                Imagen = imagen,
                 Passwd = HashPwd(passwd),
                 IdRol = 2,
             };
@@ -374,12 +378,14 @@ namespace Bougies.Repositories
         }
 
 
-        public async Task<bool> ActualizarPerfilAsync(Usuario usuario, string nuevaPasswd, IFormFile nuevaImagen)
+        public async Task<bool> ActualizarPerfilAsync(Usuario usuario, string? nuevaPasswd, IFormFile? nuevaImagen)
         {
             // Buscar el usuario real en la base de datos
             Usuario user = await this.context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == usuario.IdUsuario);
             if (user == null)
+            {
                 return false;
+            }
 
             // Actualizar datos personales
             user.Nombre = usuario.Nombre;
@@ -415,19 +421,15 @@ namespace Bougies.Repositories
 
         public async Task<List<Pedido>> GetPedidoUserAsync(int idUsuario)
         {
-            UserModel user = await this.PerfilUsuarioBlobAsync(idUsuario);
-            if(user == null)
-            {
-                return null;
-            }
-            else
-            {
-                List<Pedido> pedidos = await this.context.Pedidos.Where(p => p.IdUsuario == idUsuario).ToListAsync();
-                return pedidos;
-            }
+            List<Pedido> pedidos = await this.context.Pedidos
+                .Where(p => p.IdUsuario == idUsuario)
+                .ToListAsync();
+
+            return pedidos;
         }
+
         #endregion
-        
+
 
     }
 }

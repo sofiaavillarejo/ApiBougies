@@ -34,7 +34,6 @@ string storage = secretStorage.Value;
 BlobServiceClient blobService = new BlobServiceClient(storage);
 builder.Services.AddTransient<BlobServiceClient>(x => blobService);
 builder.Services.AddTransient<ServiceStorageBlob>();
-builder.Services.AddTransient<ServiceStorageBlob>();
 
 //string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
 builder.Services.AddDbContext<BougiesContext>(options => options.UseSqlServer(connectionString));

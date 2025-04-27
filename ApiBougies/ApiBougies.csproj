@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.11.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NugetBougiesSVR" Version="2.0.0" />
+    <PackageReference Include="NugetBougiesSVR" Version="3.0.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.1.16" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>

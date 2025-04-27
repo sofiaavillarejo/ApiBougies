@@ -32,7 +32,7 @@ namespace ApiBougies.Controllers
         {
             try
             {
-                bool registrado = await this.repo.RegistrarUser(user.Nombre, user.Apellidos, user.Email, user.Passwd);
+                bool registrado = await this.repo.RegistrarUser(user.Nombre, user.Apellidos, user.Email, user.Passwd, user.Imagen);
 
                 if (!registrado)
                 {
@@ -114,16 +114,20 @@ namespace ApiBougies.Controllers
         }
 
         [Authorize]
-        [HttpPost("UpdateUser/{iduser}")]
-        public async Task<ActionResult> UpdateUser([FromRoute] int iduser, [FromForm] string? nuevaPasswd, [FromForm] IFormFile? nuevaImagen)
+        [HttpPost("UpdateUser")]
+        public async Task<ActionResult> UpdateUser([FromForm] Usuario usuario, [FromForm] string? nuevaPasswd, [FromForm] IFormFile? nuevaImagen)
         {
-            Usuario user = await this.repo.PerfilUsuarioAsync(iduser);
+            UserModel userModel = this.helperuser.GetUser();
+            Usuario user = await this.repo.PerfilUsuarioAsync(userModel.IdUsuario);
             if (user == null)
             {
                 return NotFound("Usuario no encontrado");
             }
             else
             {
+                user.Nombre = usuario.Nombre;
+                user.Apellidos = usuario.Apellidos;
+                user.Email = usuario.Email;
                 bool updated = await this.repo.ActualizarPerfilAsync(user, nuevaPasswd, nuevaImagen);
                 if (!updated)
                 {
@@ -131,6 +135,17 @@ namespace ApiBougies.Controllers
                 }
                 else
                 {
+                    var identity = HttpContext.User.Identity as ClaimsIdentity;
+                    if (identity != null)
+                    {
+                        // Actualizar los claims con los nuevos valores
+                        identity.RemoveClaim(identity.FindFirst("userName"));
+                        identity.AddClaim(new Claim("userName", user.Nombre));
+
+                        identity.RemoveClaim(identity.FindFirst("userImage"));
+                        identity.AddClaim(new Claim("userImage", user.Imagen ?? "default_image.jpg"));
+                    }
+
                     return Ok(new { success = true, message = "Perfil actualizado correctamente." });
 
                 }

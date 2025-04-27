@@ -51,5 +51,12 @@ namespace ApiBougies.Controllers
         {
             return await this.repo.GetProductosRebajadosAsync();
         }
+
+        [HttpGet]
+        [Route("Descuentos")]
+        public async Task<ActionResult<List<Descuento>>> GetDescuentos()
+        {
+            return await this.repo.GetDescuentosAsync();
+        }
     }
 }

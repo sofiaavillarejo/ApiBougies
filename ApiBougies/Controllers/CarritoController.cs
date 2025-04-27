@@ -259,6 +259,27 @@ namespace ApiBougies.Controllers
             });
         }
 
+        [HttpPost("DesmarcarCuponUsado/{cupon}")]
+        public async Task<ActionResult> DesmarcarCuponUsado(string cupon)
+        {
+            try
+            {
+                bool result = await this.repo.DesmarcarCuponUsado(cupon);
+                if (result)
+                {
+                    return Ok(new { message = $"Cupón '{cupon}' desmarcado correctamente." });
+                }
+                else
+                {
+                    return NotFound(new { error = $"Cupón '{cupon}' no encontrado o ya estaba disponible." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error al desmarcar el cupón: " + ex.Message });
+            }
+        }
+
 
     }
 }

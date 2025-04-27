@@ -6,6 +6,7 @@
         public string Apellidos { get; set; }
         public string Email { get; set; }
         public string Passwd { get; set; }
+        public string? Imagen { get; set; }
     }
 
 }

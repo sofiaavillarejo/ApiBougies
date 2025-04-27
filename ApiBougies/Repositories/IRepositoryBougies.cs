@@ -25,7 +25,7 @@ namespace Bougies.Repositories
 
         Task<List<Roles>> GetRolesAsync();
         Task<int> GetMaxIdPedido();
-        Task<bool> RegistrarUser(string nombre, string apellidos, string email, string passwd);
+        Task<bool> RegistrarUser(string nombre, string apellidos, string email, string passwd, string imagen);
         Task<Usuario> LoginUserAsync(string email, string passwd);
         Task<Usuario> PerfilUsuarioAsync(int idUsuario);
         Task<bool> ActualizarPerfilAsync(Usuario usuario, string nuevaPasswd, IFormFile nuevaImagen);
